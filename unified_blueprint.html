@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Unified Blueprint</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ===== RESET & BASE ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: #1a1a2e; line-height: 1.55; }
+
+/* ===== PAGE SETUP ===== */
+@page { size: A4; margin: 0; }
+@page :first { margin: 0; }
+@page content { margin: 2cm 1.8cm 2cm 1.8cm; }
+
+.page { width: 210mm; min-height: 297mm; position: relative; overflow: hidden; page-break-after: always; }
+.page:last-child { page-break-after: auto; }
+.content-page { page: content; }
+
+/* ===== COVER PAGE ===== */
+.cover {
+    width: 210mm; height: 297mm;
+    background: #0a1628;
+    position: relative;
+    overflow: hidden;
+    page-break-after: always;
+}
+.cover-grid {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background-image: linear-gradient(rgba(100,200,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(100,200,255,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+.cover-accent-line {
+    position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+    background: linear-gradient(180deg, #00d4ff, #0099cc, #0066aa);
+}
+.cover::before {
+    content: ''; position: absolute; top: -80px; right: -80px; width: 400px; height: 400px;
+    border: 1px solid rgba(100,200,255,0.15); border-radius: 50%;
+}
+.cover::after {
+    content: ''; position: absolute; bottom: -120px; left: -120px; width: 500px; height: 500px;
+    border: 1px solid rgba(100,200,255,0.1); border-radius: 50%;
+}
+
+.cover-header {
+    position: absolute; top: 2.5cm; left: 2.2cm; right: 2.2cm;
+    display: flex; justify-content: space-between; align-items: center; z-index: 10;
+}
+.cover-tag {
+    font-size: 8pt; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase;
+    color: #00d4ff; border: 1px solid rgba(0,212,255,0.4); padding: 5px 14px;
+}
+.cover-date { font-size: 8pt; color: rgba(255,255,255,0.5); letter-spacing: 0.05em; }
+
+.cover-content {
+    position: absolute; top: 50%; left: 2.2cm; right: 2.2cm;
+    transform: translateY(-50%); z-index: 10;
+}
+.cover-pretitle {
+    font-size: 9pt; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase;
+    color: rgba(0,212,255,0.8); margin-bottom: 1.2cm;
+}
+.cover-title {
+    font-size: 32pt; font-weight: 800; color: #fff; line-height: 1.15;
+    margin-bottom: 0.6cm; letter-spacing: -0.02em;
+}
+.cover-subtitle {
+    font-size: 12pt; font-weight: 400; color: rgba(255,255,255,0.6);
+    line-height: 1.6; max-width: 85%;
+}
+.cover-divider {
+    width: 55px; height: 3px;
+    background: linear-gradient(90deg, #00d4ff, #0066aa); margin: 1cm 0;
+}
+.cover-meta {
+    position: absolute; bottom: 2.5cm; left: 2.2cm; z-index: 10;
+}
+.cover-meta-item {
+    font-size: 8pt; color: rgba(255,255,255,0.4); margin-bottom: 5px; letter-spacing: 0.03em;
+}
+.cover-meta-label { color: rgba(255,255,255,0.6); font-weight: 500; }
+
+.cover-shape-1 { position: absolute; top: 15%; right: 8%; width: 100px; height: 100px; border: 2px solid rgba(0,212,255,0.2); transform: rotate(45deg); }
+.cover-shape-2 { position: absolute; bottom: 20%; right: 15%; width: 70px; height: 70px; background: rgba(0,212,255,0.08); border-radius: 50%; }
+
+/* ===== CONTENT PAGES ===== */
+.content-page { background: #fafbfc; }
+.page-header {
+    border-bottom: 2px solid #1a1a2e; padding-bottom: 0.35cm; margin-bottom: 0.7cm;
+    display: flex; justify-content: space-between; align-items: baseline;
+}
+.page-header h2 { font-size: 16pt; font-weight: 700; color: #1a1a2e; letter-spacing: -0.01em; }
+.page-num { font-size: 9pt; font-weight: 600; color: #888; }
+
+/* ===== TYPOGRAPHY ===== */
+p { font-size: 9.5pt; color: #333; line-height: 1.6; margin-bottom: 0.4cm; text-align: justify; text-align-last: left; }
+h3 { font-size: 11pt; font-weight: 700; color: #1a1a2e; margin: 0.5cm 0 0.25cm 0; }
+h4 { font-size: 10pt; font-weight: 600; color: #2a2a4e; margin: 0.4cm 0 0.2cm 0; }
+
+/* ===== CALLOUT BOXES ===== */
+.callout {
+    padding: 0.4cm 0.55cm; margin: 0.4cm 0; font-size: 9pt; line-height: 1.55;
+    border-left: 3px solid #00a8cc; background: #f5f9fb;
+}
+.callout strong { color: #0066aa; }
+.callout-problem { border-left-color: #e74c3c; background: #fdf5f5; }
+.callout-insight { border-left-color: #f39c12; background: #fefcf5; }
+.callout-success { border-left-color: #27ae60; background: #f5faf7; }
+
+/* ===== ARCHITECTURE: SIMPLE BLOCKS ===== */
+.arch-wrap { margin: 0.4cm 0; }
+.arch-section { margin-bottom: 0.35cm; }
+.arch-label {
+    font-size: 7pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+    color: #888; margin-bottom: 0.2cm;
+}
+
+/* Data inputs row */
+.arch-inputs { width: 100%; }
+.arch-inputs td {
+    width: 25%; padding: 0.3cm; border: 1px solid #d0d5dd; background: #fafbfc;
+    text-align: center; vertical-align: top;
+}
+.arch-inputs .bi { font-size: 8.5pt; font-weight: 700; color: #1a1a2e; margin-bottom: 0.1cm; }
+.arch-inputs .bd { font-size: 7.5pt; color: #666; line-height: 1.4; }
+
+/* Core engine row */
+.arch-engine { width: 100%; }
+.arch-engine td {
+    width: 33.33%; padding: 0.35cm 0.4cm; border: 1px solid #0a1628;
+    background: linear-gradient(135deg, #0a1628 0%, #1a2d4a 100%); text-align: center; vertical-align: top;
+}
+.arch-engine .bi { font-size: 9pt; font-weight: 700; color: #00d4ff; margin-bottom: 0.1cm; }
+.arch-engine .bd { font-size: 7.5pt; color: rgba(255,255,255,0.7); line-height: 1.4; }
+
+/* Output row */
+.arch-output { width: 100%; }
+.arch-output td {
+    width: 33.33%; padding: 0.3cm; border: 1px solid #00a8cc;
+    background: linear-gradient(135deg, #f8fafc 0%, #e8f4f8 100%); text-align: center; vertical-align: top;
+}
+.arch-output .bi { font-size: 8.5pt; font-weight: 700; color: #1a1a2e; margin-bottom: 0.1cm; }
+.arch-output .bd { font-size: 7.5pt; color: #555; line-height: 1.4; }
+
+/* Flow row */
+.arch-flow { width: 100%; }
+.arch-flow td {
+    padding: 0.25cm 0.15cm; text-align: center; vertical-align: middle;
+    border: 1px solid #d0d5dd; background: #fff;
+}
+.arch-flow .bi { font-size: 8pt; font-weight: 700; color: #1a1a2e; }
+.arch-flow .bd { font-size: 7pt; color: #666; line-height: 1.3; }
+.arch-flow td.arrow { border: none; background: transparent; font-size: 14pt; color: #00a8cc; width: 5%; }
+
+.arch-arrow-down {
+    text-align: center; font-size: 10pt; color: #aaa; line-height: 0.4cm;
+}
+.arch-flow-label {
+    text-align: center; font-size: 7pt; color: #999; font-style: italic; margin: 0.1cm 0;
+}
+
+/* ===== STATS ROW ===== */
+.stats-row { width: 100%; margin: 0.4cm 0; }
+.stats-row td { width: 33.33%; padding: 0.4cm; text-align: center; border: 1px solid #e0e4e8; background: #fff; }
+.stats-row td.accent { background: linear-gradient(135deg, #0a1628 0%, #1a2d4a 100%); border-color: #0a1628; }
+.stat-number { font-size: 20pt; font-weight: 800; color: #0a1628; line-height: 1.2; }
+.accent .stat-number { color: #00d4ff; }
+.stat-label { font-size: 7.5pt; color: #666; margin-top: 0.1cm; text-transform: uppercase; letter-spacing: 0.05em; }
+.accent .stat-label { color: rgba(255,255,255,0.7); }
+
+/* ===== TABLES ===== */
+table { width: 100%; border-collapse: collapse; margin: 0.35cm 0; font-size: 8.5pt; max-width: 100%; }
+thead { display: table-header-group; }
+thead tr { border-top: 2px solid #1a1a2e; border-bottom: 1px solid #1a1a2e; }
+th { padding: 0.25cm 0.35cm; text-align: left; font-weight: 700; color: #1a1a2e; font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.05em; }
+td { padding: 0.25cm 0.35cm; border-bottom: 1px solid #e0e4e8; color: #444; vertical-align: top; }
+tbody tr:last-child { border-bottom: 2px solid #1a1a2e; }
+tr { page-break-inside: avoid; }
+
+/* ===== STEP CARDS ===== */
+.steps { width: 100%; margin: 0.35cm 0; }
+.steps td { width: 25%; padding: 0.3cm; border: 1px solid #e0e4e8; background: #fff; vertical-align: top; position: relative; }
+.step-num2 {
+    display: inline-block; width: 0.55cm; height: 0.55cm; background: #0a1628; color: #00d4ff;
+    font-size: 8pt; font-weight: 700; text-align: center; line-height: 0.55cm; margin-bottom: 0.15cm;
+}
+.step-title { font-size: 8.5pt; font-weight: 700; color: #1a1a2e; margin-bottom: 0.1cm; }
+.step-desc { font-size: 7.5pt; color: #555; line-height: 1.45; }
+
+/* ===== THREE COL ===== */
+.cols3 { width: 100%; margin: 0.3cm 0; }
+.cols3 td { width: 33.33%; padding: 0.35cm; border: 1px solid #e0e4e8; background: #fff; vertical-align: top; }
+.col-title { font-size: 8.5pt; font-weight: 700; color: #1a1a2e; margin-bottom: 0.2cm; padding-bottom: 0.15cm; border-bottom: 1px solid #e0e4e8; }
+.col-body { font-size: 8pt; color: #444; line-height: 1.55; }
+
+/* ===== SECTION LABEL ===== */
+.section-label {
+    font-size: 7pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em;
+    color: #00a8cc; margin-bottom: 0.2cm; display: block;
+}
+
+/* ===== PREVENT OVERFLOW ===== */
+pre, table, figure, img, svg, blockquote { max-width: 100%; box-sizing: border-box; }
+a { word-break: break-all; }
+
+/* ===== PAGE NUMBERING ===== */
+@page content { @bottom-center { content: counter(page); font-size: 8pt; color: #999; } }
+</style>
+</head>
+<body>
+
+<!-- ===== PAGE 1: COVER ===== -->
+<div class="cover">
+    <div class="cover-grid"></div>
+    <div class="cover-accent-line"></div>
+    <div class="cover-shape-1"></div>
+    <div class="cover-shape-2"></div>
+
+    <div class="cover-header">
+        <div class="cover-tag">Technical Blueprint</div>
+        <div class="cover-date">June 2026</div>
+    </div>
+
+    <div class="cover-content">
+        <div class="cover-pretitle">Unified Marketing Measurement</div>
+        <h1 class="cover-title">The Unified Blueprint:<br>Blending Measurement<br>Methodologies</h1>
+        <div class="cover-divider"></div>
+        <p class="cover-subtitle">Moving beyond isolated data silos to unlock a 40% uplift in marketing efficiency through Bayesian-powered unified measurement.</p>
+    </div>
+
+    <div class="cover-meta">
+        <div class="cover-meta-item"><span class="cover-meta-label">Methodology:</span> UMM (Unified Marketing Measurement)</div>
+        <div class="cover-meta-item"><span class="cover-meta-label">Framework:</span> Bayesian Statistical Modeling</div>
+        <div class="cover-meta-item"><span class="cover-meta-label">Components:</span> MMM + MTA + Experiments</div>
+    </div>
+</div>
+
+<!-- ===== PAGE 2: EXECUTIVE SUMMARY ===== -->
+<div class="page content-page">
+    <div class="page-header">
+        <h2>Executive Summary</h2>
+        <span class="page-num">02</span>
+    </div>
+
+    <span class="section-label">The Problem</span>
+    <p>Marketing measurement is divided. Teams focus on fragments of the customer journey using disconnected tools. MMM, MTA, and experiments exist in complete isolation, ignoring interactive effects between channels. This creates biased recommendations and flawed budget allocation across a $600 billion global ad spend landscape.</p>
+
+    <div class="callout callout-problem">
+        <strong>The Silo Trap:</strong> Upper-funnel Brand Teams (MMM) and Lower-funnel Performance Teams (MTA) operate in separate organizational chasms. MMM lacks tactical detail; MTA is blind to offline media. Teams steer on conflicting insights.
+    </div>
+
+    <span class="section-label">The Solution</span>
+    <p>Unified Marketing Measurement (UMM) blends data streams at their mathematical root. It uses Bayesian statistics to incorporate MMM, MTA, and experiments as "prior beliefs" — building interaction models that capture cross-channel effects invisible to siloed approaches.</p>
+
+    <table class="stats-row">
+        <tr>
+            <td class="accent"><div class="stat-number">+40%</div><div class="stat-label">Expected Sales Uplift</div></td>
+            <td><div class="stat-number">3-in-1</div><div class="stat-label">Blended Methods</div></td>
+            <td><div class="stat-number">Unified</div><div class="stat-label">Source of Truth</div></td>
+        </tr>
+    </table>
+
+    <span class="section-label">Traditional Toolkit Comparison</span>
+    <table>
+        <thead><tr><th style="width:22%">Method</th><th style="width:26%">Strengths</th><th style="width:26%">Limitations</th><th style="width:26%">UMM Fix</th></tr></thead>
+        <tbody>
+            <tr><td><strong>MMM</strong><br><span style="font-size:7.5pt;color:#666">Aggregate modeling</span></td><td>High-level budget planning; captures offline dynamics</td><td>Lacks tactical detail; ignores granular online data</td><td>Enhanced with MTA granularity + experiment calibration</td></tr>
+            <tr><td><strong>MTA</strong><br><span style="font-size:7.5pt;color:#666">User-level digital</span></td><td>Real-time optimization; detailed user interactions</td><td>Blind to offline media; privacy regulation challenges</td><td>Extended with MMM offline coverage + Bayesian priors</td></tr>
+            <tr><td><strong>Experiments</strong><br><span style="font-size:7.5pt;color:#666">Incrementality tests</span></td><td>Extremely accurate incremental impact insights</td><td>Difficult to scale across all channels</td><td>Scales insights structurally into the core model</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ===== PAGE 3: ARCHITECTURE DIAGRAM ===== -->
+<div class="page content-page">
+    <div class="page-header">
+        <h2>UMM Technical Architecture</h2>
+        <span class="page-num">03</span>
+    </div>
+
+    <span class="section-label">System Overview</span>
+    <p>The UMM architecture operates as a continuous learning loop. Data from three methodological pillars feeds into a Bayesian inference engine that produces a unified source of truth, driving budget reallocation whose results feed back as new experimental data.</p>
+
+    <div class="arch-wrap">
+        <!-- Data Inputs -->
+        <div class="arch-section">
+            <div class="arch-label">Data Inputs</div>
+            <table class="arch-inputs">
+                <tr>
+                    <td><div class="bi">MMM Data</div><div class="bd">Aggregate spend &amp; reach<br>TV, Radio, Print, OOH</div></td>
+                    <td><div class="bi">MTA Data</div><div class="bd">User-level digital touchpoints<br>Clicks, impressions, conversions</div></td>
+                    <td><div class="bi">Experiment Data</div><div class="bd">Incrementality test results<br>Geo-lifts, A/B outcomes</div></td>
+                    <td><div class="bi">Business Context</div><div class="bd">Seasonality, promotions<br>External market factors</div></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="arch-flow-label">Bayesian prior beliefs + observed evidence</div>
+        <div class="arch-arrow-down">&#8595;</div>
+
+        <!-- Bayesian Engine -->
+        <div class="arch-section">
+            <div class="arch-label">Bayesian Inference Engine</div>
+            <table class="arch-engine">
+                <tr>
+                    <td><div class="bi">Prior Definition</div><div class="bd">Encode historical knowledge &amp; experiment results as probability distributions</div></td>
+                    <td><div class="bi">Likelihood Model</div><div class="bd">Integrate MMM aggregate + MTA granular data streams</div></td>
+                    <td><div class="bi">Posterior Output</div><div class="bd">Unified attribution with calibrated uncertainty estimates</div></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="arch-flow-label">Unified measurement output</div>
+        <div class="arch-arrow-down">&#8595;</div>
+
+        <!-- Unified Outputs -->
+        <div class="arch-section">
+            <div class="arch-label">Unified Outputs</div>
+            <table class="arch-output">
+                <tr>
+                    <td><div class="bi">Cross-Channel Attribution</div><div class="bd">Every channel receives true credit including offline-to-online effects</div></td>
+                    <td><div class="bi">Budget Optimization</div><div class="bd">Reallocate spend based on unified marginal ROI across all channels</div></td>
+                    <td><div class="bi">Predictive Forecasting</div><div class="bd">Scenario modeling with full uncertainty quantification</div></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="arch-flow-label">Feedback loop: experiments validate and refine</div>
+        <div class="arch-arrow-down">&#8595;</div>
+
+        <!-- Continuous Learning -->
+        <div class="arch-section">
+            <div class="arch-label">Continuous Learning Loop</div>
+            <table class="arch-flow">
+                <tr>
+                    <td><div class="bi">1. Define Priors</div><div class="bd">Baselines from experiments &amp; past data</div></td>
+                    <td class="arrow">&#8594;</td>
+                    <td><div class="bi">2. Model</div><div class="bd">Update beliefs with observed data</div></td>
+                    <td class="arrow">&#8594;</td>
+                    <td><div class="bi">3. Validate</div><div class="bd">Challenge with stakeholder input</div></td>
+                    <td class="arrow">&#8594;</td>
+                    <td><div class="bi">4. Re-allocate</div><div class="bd">Execute budget shifts across channels</div></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="callout callout-insight">
+        <strong>Key Insight:</strong> Bayesian modeling enables knowledge transfer across models. MTA findings inform MMM priors; experiment results calibrate the unified output. A spike in Direct visits after a TV commercial is mathematically connected and properly attributed.
+    </div>
+</div>
+
+<!-- ===== PAGE 4: IMPLEMENTATION & BENEFITS ===== -->
+<div class="page content-page">
+    <div class="page-header">
+        <h2>Implementation &amp; Benefits</h2>
+        <span class="page-num">04</span>
+    </div>
+
+    <span class="section-label">Four-Step Blending Recipe</span>
+    <table class="steps">
+        <tr>
+            <td><div class="step-num2">1</div><div class="step-title">Common Understanding</div><div class="step-desc">Align on KPIs across silos. Establish prior beliefs from historical knowledge.</div></td>
+            <td><div class="step-num2">2</div><div class="step-title">MTA Measurement</div><div class="step-desc">Measure direct impact of all online interactions at the granular user level.</div></td>
+            <td><div class="step-num2">3</div><div class="step-title">MMM Interaction</div><div class="step-desc">Model aggregated upper-funnel channels' impact on lower-funnel online.</div></td>
+            <td><div class="step-num2">4</div><div class="step-title">Unified Re-attribution</div><div class="step-desc">Re-divide attributed sales mathematically based on true interaction contribution.</div></td>
+        </tr>
+    </table>
+
+    <span class="section-label">Six Structural Advantages</span>
+    <table class="cols3">
+        <tr>
+            <td><div class="col-title">Accuracy</div><div class="col-body">Precise measurement drives improved budget allocations and significantly increased revenues.</div></td>
+            <td><div class="col-title">Holistic View</div><div class="col-body">Captures complex cross-effects between upper and lower funnel campaigns.</div></td>
+            <td><div class="col-title">Feedback Loop</div><div class="col-body">Constantly updates knowledge reservoir with incoming live data.</div></td>
+        </tr>
+    </table>
+    <table class="cols3">
+        <tr>
+            <td><div class="col-title">Flexibility</div><div class="col-body">Handles varying data granularity from multiple sources effortlessly.</div></td>
+            <td><div class="col-title">Reliability</div><div class="col-body">Bayesian statistics mathematically correct unreliable outlier data.</div></td>
+            <td><div class="col-title">Granularity</div><div class="col-body">Combines aggregate and user-level data without losing information.</div></td>
+        </tr>
+    </table>
+
+    <span class="section-label">Experiment Calibration Scenarios</span>
+    <table>
+        <thead><tr><th style="width:25%">Scenario</th><th style="width:12%">Accuracy</th><th style="width:13%">Scope</th><th style="width:50%">Action</th></tr></thead>
+        <tbody>
+            <tr><td><strong>A:</strong> Aligns with outcomes</td><td>Matching</td><td>Full model</td><td>Do nothing. Model is correctly calibrated.</td></tr>
+            <tr><td><strong>B:</strong> More accurate, isolated</td><td>Higher</td><td>Single campaign</td><td>Correct attribution for this specific campaign only.</td></tr>
+            <tr><td><strong>C:</strong> Accurate, broadly applicable</td><td>Superior</td><td>Structural</td><td>Integrate outcomes structurally to improve the core model.</td></tr>
+            <tr><td><strong>D:</strong> Reveals micro-details</td><td>Granular</td><td>Sub-channel</td><td>Use results to create deeper granularity in attribution.</td></tr>
+        </tbody>
+    </table>
+
+    <div class="callout callout-success">
+        <strong>Proven Result:</strong> A leading e-commerce retailer implemented UMM and eliminated manual dashboard merging. By blending the math at the foundational level, they achieved a <strong>40% increase in expected uplift</strong>. For the first time, they conclusively measured how every euro spent on upper-funnel branding directly impacted their owned digital channels.
+    </div>
+</div>
+
+</body>
+</html>

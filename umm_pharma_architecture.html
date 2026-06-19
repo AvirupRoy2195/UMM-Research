@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>UMM for Pharma — Architecture & Build Plan</title>
+<style>
+  :root {
+    --ink: #0e1a2b;
+    --ink-soft: #2c3e50;
+    --muted: #6b7a8a;
+    --line: #e3e8ef;
+    --bg: #f7f9fc;
+    --card: #ffffff;
+    --accent: #2563eb;
+    --accent-soft: #dbeafe;
+    --green: #059669;
+    --green-soft: #d1fae5;
+    --amber: #d97706;
+    --amber-soft: #fef3c7;
+    --rose: #dc2626;
+    --rose-soft: #fee2e2;
+    --purple: #7c3aed;
+    --purple-soft: #ede9fe;
+    --teal: #0891b2;
+    --teal-soft: #cffafe;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 32px 24px 80px; }
+  header {
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 24px;
+    margin-bottom: 32px;
+  }
+  .eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  h1 {
+    font-size: 36px;
+    line-height: 1.15;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .subtitle {
+    font-size: 17px;
+    color: var(--ink-soft);
+    max-width: 800px;
+  }
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    margin-top: 20px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .meta-row span strong { color: var(--ink); }
+
+  h2 {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 48px 0 8px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+  }
+  h2:first-of-type { border-top: none; padding-top: 0; }
+  h3 {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 24px 0 8px;
+    color: var(--ink);
+  }
+  p { color: var(--ink-soft); margin-bottom: 12px; }
+  ul, ol { color: var(--ink-soft); margin: 8px 0 16px 24px; }
+  li { margin-bottom: 6px; }
+  code {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 13px;
+    background: #eef2f7;
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--ink);
+  }
+  pre {
+    background: #0e1a2b;
+    color: #e3e8ef;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 12px 0 20px;
+  }
+  pre code { background: transparent; color: inherit; padding: 0; }
+
+  /* ===== Diagrams ===== */
+  .diagram {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 28px;
+    margin: 16px 0 24px;
+    overflow-x: auto;
+  }
+  .diagram svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+
+  /* ===== Phase cards ===== */
+  .phases {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin: 20px 0 28px;
+  }
+  .phase {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+  }
+  .phase-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  .phase h4 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .phase .duration {
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .phase p { font-size: 13px; color: var(--ink-soft); margin: 0; }
+
+  /* ===== Tables ===== */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card);
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    margin: 16px 0 24px;
+    font-size: 14px;
+  }
+  th, td {
+    text-align: left;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  th { background: #eef2f7; font-weight: 600; color: var(--ink); font-size: 13px; }
+  tr:last-child td { border-bottom: none; }
+
+  /* ===== Callouts ===== */
+  .callout {
+    border-left: 4px solid var(--accent);
+    background: var(--accent-soft);
+    padding: 14px 18px;
+    border-radius: 6px;
+    margin: 16px 0;
+    font-size: 14px;
+    color: var(--ink);
+  }
+  .callout.warn { border-color: var(--amber); background: var(--amber-soft); }
+  .callout.danger { border-color: var(--rose); background: var(--rose-soft); }
+  .callout.good { border-color: var(--green); background: var(--green-soft); }
+  .callout strong { display: block; margin-bottom: 4px; }
+
+  /* ===== Two-col layout ===== */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0 24px;
+  }
+  @media (max-width: 760px) { .two-col { grid-template-columns: 1fr; } }
+  .col-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .col-card h4 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* ===== Timeline ===== */
+  .timeline {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 24px;
+    margin: 16px 0 24px;
+  }
+  .timeline-bar {
+    height: 12px;
+    border-radius: 6px;
+    background: linear-gradient(to right,
+      var(--accent) 0%, var(--accent) 12%,
+      var(--green) 12%, var(--green) 35%,
+      var(--amber) 35%, var(--amber) 60%,
+      var(--purple) 60%, var(--purple) 90%,
+      var(--teal) 90%, var(--teal) 100%);
+    margin-bottom: 8px;
+    position: relative;
+  }
+  .ticks {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .timeline-legend {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 8px;
+    margin-top: 18px;
+    font-size: 13px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 8px; }
+  .legend-dot {
+    width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0;
+  }
+
+  footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 13px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Unified Marketing Measurement · Pharma</div>
+  <h1>Combining Bayesian Hierarchical MMM with HCP-level MTA</h1>
+  <p class="subtitle">
+    A unified Bayesian framework where the geo-level Bayesian Hierarchical Model
+    (BHM) provides the structural skeleton and HCP-level multi-touch attribution on
+    prescription claims provides granular path evidence — yielding a single source
+    of truth for channel contribution across multiple geos.
+  </p>
+  <div class="meta-row">
+    <span><strong>Domain</strong> Pharmaceutical brand analytics</span>
+    <span><strong>MMM</strong> Bayesian Hierarchical (BHM), monthly × geo</span>
+    <span><strong>MTA</strong> HCP-level (NPI / country license ID), Rx claims</span>
+    <span><strong>Conversion</strong> Rx event (TRx / NBRx)</span>
+  </div>
+</header>
+
+<!-- ============================================================
+     SECTION 1 — ARCHITECTURE
+     ============================================================ -->
+<h2>1. Target UMM architecture</h2>
+
+<div class="diagram">
+<svg viewBox="0 0 1100 580" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, sans-serif">
+  <!-- Title -->
+  <text x="550" y="28" text-anchor="middle" font-size="18" font-weight="700" fill="#0e1a2b">Unified Bayesian Model — single posterior from two evidence streams</text>
+
+  <!-- LEFT: MMM side -->
+  <rect x="40" y="60" width="240" height="240" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="160" y="84" text-anchor="middle" font-size="14" font-weight="700" fill="#1e40af">MMM Structural Skeleton</text>
+  <text x="160" y="104" text-anchor="middle" font-size="11" fill="#2c3e50">(from BHM)</text>
+
+  <text x="60" y="130" font-size="11" fill="#0e1a2b">• Hyperpriors μ_channel ~ N(0, σ)</text>
+  <text x="60" y="150" font-size="11" fill="#0e1a2b">• Geo partial pooling</text>
+  <text x="60" y="170" font-size="11" fill="#0e1a2b">• Adstock (geometric decay)</text>
+  <text x="60" y="190" font-size="11" fill="#0e1a2b">• Hill saturation</text>
+  <text x="60" y="210" font-size="11" fill="#0e1a2b">• Cross-channel interactions</text>
+  <text x="60" y="230" font-size="11" fill="#0e1a2b">• Controls: season, formulary,</text>
+  <text x="60" y="246" font-size="11" fill="#0e1a2b">  competitor launches</text>
+  <text x="60" y="270" font-size="11" font-weight="700" fill="#1e40af">Output:</text>
+  <text x="60" y="286" font-size="11" fill="#0e1a2b">β_geo,channel · response curves</text>
+
+  <!-- RIGHT: MTA side -->
+  <rect x="820" y="60" width="240" height="240" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+  <text x="940" y="84" text-anchor="middle" font-size="14" font-weight="700" fill="#5b21b6">MTA Likelihood Evidence</text>
+  <text x="940" y="104" text-anchor="middle" font-size="11" fill="#2c3e50">(from claims data)</text>
+
+  <text x="840" y="130" font-size="11" fill="#0e1a2b">• HCP path dataset</text>
+  <text x="840" y="150" font-size="11" fill="#0e1a2b">  (NPI / license ID)</text>
+  <text x="840" y="170" font-size="11" fill="#0e1a2b">• Touchpoint sequence</text>
+  <text x="840" y="190" font-size="11" fill="#0e1a2b">  × position × time</text>
+  <text x="840" y="210" font-size="11" fill="#0e1a2b">• Rx outcome (binary)</text>
+  <text x="840" y="230" font-size="11" fill="#0e1a2b">• Shapley / survival model</text>
+  <text x="840" y="250" font-size="11" fill="#0e1a2b">• Specialty &amp; decile segmentation</text>
+  <text x="840" y="274" font-size="11" font-weight="700" fill="#5b21b6">Output:</text>
+  <text x="840" y="290" font-size="11" fill="#0e1a2b">P(Rx | path) per HCP</text>
+
+  <!-- CENTER: Unified Bayesian Model -->
+  <rect x="320" y="60" width="460" height="240" rx="12" fill="#0e1a2b" stroke="#0e1a2b" stroke-width="2"/>
+  <text x="550" y="92" text-anchor="middle" font-size="16" font-weight="700" fill="#ffffff">UNIFIED BAYESIAN MODEL</text>
+  <text x="550" y="116" text-anchor="middle" font-size="11" fill="#dbeafe">PyMC custom hierarchical model</text>
+
+  <text x="350" y="148" font-size="11" fill="#ffffff">• 3-tier hierarchy: global → geo → time</text>
+  <text x="350" y="168" font-size="11" fill="#ffffff">• Non-centered parameterization for sampling</text>
+  <text x="350" y="188" font-size="11" fill="#ffffff">• Joint likelihood from MMM (Rx volume)</text>
+  <text x="350" y="208" font-size="11" fill="#ffffff">  + MTA (Rx binary per HCP)</text>
+  <text x="350" y="228" font-size="11" fill="#ffffff">• Cross-channel interaction terms</text>
+  <text x="350" y="248" font-size="11" fill="#ffffff">• NUTS sampling, 4 chains, 2000 draws</text>
+  <text x="350" y="278" font-size="11" font-weight="700" fill="#fbbf24">Posterior = unified β, curves,</text>
+  <text x="350" y="294" font-size="11" font-weight="700" fill="#fbbf24">interactions, full uncertainty</text>
+
+  <!-- Arrows -->
+  <path d="M 280 180 L 320 180" stroke="#2563eb" stroke-width="2.5" marker-end="url(#arr1)" fill="none"/>
+  <path d="M 820 180 L 780 180" stroke="#7c3aed" stroke-width="2.5" marker-end="url(#arr2)" fill="none"/>
+  <defs>
+    <marker id="arr1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#2563eb"/></marker>
+    <marker id="arr2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#7c3aed"/></marker>
+  </defs>
+
+  <!-- BOTTOM: Output + Feedback loop -->
+  <rect x="120" y="340" width="860" height="100" rx="10" fill="#d1fae5" stroke="#059669" stroke-width="2"/>
+  <text x="550" y="365" text-anchor="middle" font-size="14" font-weight="700" fill="#065f46">Unified Outputs → Decision Dashboard</text>
+  <text x="160" y="395" font-size="11" fill="#0e1a2b">✓ Per-channel β per geo (with 95% HDI)</text>
+  <text x="160" y="415" font-size="11" fill="#0e1a2b">✓ Response curves per channel per geo</text>
+  <text x="560" y="395" font-size="11" fill="#0e1a2b">✓ Cross-channel interaction effects</text>
+  <text x="560" y="415" font-size="11" fill="#0e1a2b">✓ Optimization scenarios with uncertainty</text>
+
+  <!-- Geo Experiments -->
+  <rect x="320" y="470" width="460" height="80" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <text x="550" y="495" text-anchor="middle" font-size="14" font-weight="700" fill="#92400e">Geo Experiments (Validation + Prior Update)</text>
+  <text x="550" y="520" text-anchor="middle" font-size="11" fill="#0e1a2b">GeoLift · CausalImpact · CausalPy</text>
+  <text x="550" y="540" text-anchor="middle" font-size="11" font-style="italic" fill="#0e1a2b">"Each experiment result becomes a prior for next quarter's fit"</text>
+
+  <!-- Feedback arrow -->
+  <path d="M 550 470 L 550 310" stroke="#d97706" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arr3)" fill="none"/>
+  <defs>
+    <marker id="arr3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#d97706"/></marker>
+  </defs>
+  <text x="560" y="395" font-size="10" fill="#d97706" font-style="italic">(results → update priors → re-fit)</text>
+</svg>
+</div>
+
+<!-- ============================================================
+     SECTION 2 — DATA FLOW
+     ============================================================ -->
+<h2>2. Data flow &amp; warehouse architecture</h2>
+
+<div class="diagram">
+<svg viewBox="0 0 1100 360" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, sans-serif">
+  <!-- Sources column -->
+  <text x="100" y="28" text-anchor="middle" font-size="13" font-weight="700" fill="#0e1a2b">SOURCES</text>
+
+  <rect x="20" y="50" width="160" height="34" rx="5" fill="#f0f4f8" stroke="#6b7a8a"/>
+  <text x="100" y="71" text-anchor="middle" font-size="11" fill="#0e1a2b">IQVIA / Veeva Rx</text>
+
+  <rect x="20" y="92" width="160" height="34" rx="5" fill="#f0f4f8" stroke="#6b7a8a"/>
+  <text x="100" y="113" text-anchor="middle" font-size="11" fill="#0e1a2b">Veeva CRM</text>
+
+  <rect x="20" y="134" width="160" height="34" rx="5" fill="#f0f4f8" stroke="#6b7a8a"/>
+  <text x="100" y="155" text-anchor="middle" font-size="11" fill="#0e1a2b">Sermo / Doximity</text>
+
+  <rect x="20" y="176" width="160" height="34" rx="5" fill="#f0f4f8" stroke="#6b7a8a"/>
+  <text x="100" y="197" text-anchor="middle" font-size="11" fill="#0e1a2b">Speaker Bureau DB</text>
+
+  <rect x="20" y="218" width="160" height="34" rx="5" fill="#f0f4f8" stroke="#6b7a8a"/>
+  <text x="100" y="239" text-anchor="middle" font-size="11" fill="#0e1a2b">Conference lists</text>
+
+  <rect x="20" y="260" width="160" height="34" rx="5" fill="#f0f4f8" stroke="#6b7a8a"/>
+  <text x="100" y="281" text-anchor="middle" font-size="11" fill="#0e1a2b">Email / CME platforms</text>
+
+  <rect x="20" y="302" width="160" height="34" rx="5" fill="#f0f4f8" stroke="#6b7a8a"/>
+  <text x="100" y="323" text-anchor="middle" font-size="11" fill="#0e1a2b">Sales force activity</text>
+
+  <!-- Warehouse -->
+  <text x="430" y="28" text-anchor="middle" font-size="13" font-weight="700" fill="#0e1a2b">WAREHOUSE</text>
+  <rect x="280" y="50" width="300" height="290" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="430" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="#1e40af">Snowflake / BigQuery</text>
+
+  <text x="300" y="110" font-size="11" fill="#0e1a2b">▸ HCP Master (NPI/license ID)</text>
+  <text x="300" y="130" font-size="11" fill="#0e1a2b">▸ Touchpoint timeline</text>
+  <text x="300" y="150" font-size="11" fill="#0e1a2b">▸ Monthly spend × geo × channel</text>
+  <text x="300" y="170" font-size="11" fill="#0e1a2b">▸ Monthly Rx × geo</text>
+  <text x="300" y="190" font-size="11" fill="#0e1a2b">▸ HCP-path-Rx outcome table</text>
+
+  <text x="300" y="225" font-size="11" font-weight="700" fill="#1e40af">Audit trail:</text>
+  <text x="300" y="243" font-size="11" fill="#0e1a2b">▸ Source lineage per row</text>
+  <text x="300" y="261" font-size="11" fill="#0e1a2b">▸ Transformation log</text>
+  <text x="300" y="279" font-size="11" fill="#0e1a2b">▸ Access audit</text>
+  <text x="300" y="297" font-size="11" fill="#0e1a2b">▸ Fair-balance flags</text>
+  <text x="300" y="320" font-size="11" font-style="italic" fill="#dc2626">Compliance-grade</text>
+
+  <!-- Models column -->
+  <text x="760" y="28" text-anchor="middle" font-size="13" font-weight="700" fill="#0e1a2b">MODELS</text>
+  <rect x="620" y="50" width="280" height="80" rx="8" fill="#d1fae5" stroke="#059669" stroke-width="2"/>
+  <text x="760" y="75" text-anchor="middle" font-size="12" font-weight="700" fill="#065f46">MMM (BHM)</text>
+  <text x="760" y="95" text-anchor="middle" font-size="11" fill="#0e1a2b">Meridian / PyMC-Marketing</text>
+  <text x="760" y="115" text-anchor="middle" font-size="10" fill="#0e1a2b">geo-level structural skeleton</text>
+
+  <rect x="620" y="140" width="280" height="80" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+  <text x="760" y="165" text-anchor="middle" font-size="12" font-weight="700" fill="#5b21b6">HCP-level MTA</text>
+  <text x="760" y="185" text-anchor="middle" font-size="11" fill="#0e1a2b">Shapley / Survival model</text>
+  <text x="760" y="205" text-anchor="middle" font-size="10" fill="#0e1a2b">path-level likelihood</text>
+
+  <rect x="620" y="230" width="280" height="80" rx="8" fill="#0e1a2b" stroke="#0e1a2b" stroke-width="2"/>
+  <text x="760" y="255" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">UNIFIED MODEL</text>
+  <text x="760" y="275" text-anchor="middle" font-size="11" fill="#fbbf24">PyMC custom hierarchical</text>
+  <text x="760" y="295" text-anchor="middle" font-size="10" fill="#ffffff">single posterior → single truth</text>
+
+  <!-- Consumers column -->
+  <text x="1010" y="28" text-anchor="middle" font-size="13" font-weight="700" fill="#0e1a2b">CONSUMERS</text>
+  <rect x="930" y="50" width="160" height="34" rx="5" fill="#fef3c7" stroke="#d97706"/>
+  <text x="1010" y="71" text-anchor="middle" font-size="11" fill="#0e1a2b">Brand team</text>
+  <rect x="930" y="92" width="160" height="34" rx="5" fill="#fef3c7" stroke="#d97706"/>
+  <text x="1010" y="113" text-anchor="middle" font-size="11" fill="#0e1a2b">Sales ops</text>
+  <rect x="930" y="134" width="160" height="34" rx="5" fill="#fef3c7" stroke="#d97706"/>
+  <text x="1010" y="155" text-anchor="middle" font-size="11" fill="#0e1a2b">Medical affairs</text>
+  <rect x="930" y="176" width="160" height="34" rx="5" fill="#fef3c7" stroke="#d97706"/>
+  <text x="1010" y="197" text-anchor="middle" font-size="11" fill="#0e1a2b">Finance</text>
+
+  <rect x="930" y="230" width="160" height="80" rx="8" fill="#cffafe" stroke="#0891b2" stroke-width="2"/>
+  <text x="1010" y="252" text-anchor="middle" font-size="11" font-weight="700" fill="#155e75">Decision Dashboard</text>
+  <text x="1010" y="270" text-anchor="middle" font-size="10" fill="#0e1a2b">+ Optimization tool</text>
+  <text x="1010" y="288" text-anchor="middle" font-size="10" fill="#0e1a2b">+ Scenario planner</text>
+
+  <!-- Arrows -->
+  <path d="M 180 170 L 280 170" stroke="#6b7a8a" stroke-width="1.5" marker-end="url(#arrG)" fill="none"/>
+  <path d="M 580 90 L 620 90" stroke="#6b7a8a" stroke-width="1.5" marker-end="url(#arrG)" fill="none"/>
+  <path d="M 580 180 L 620 180" stroke="#6b7a8a" stroke-width="1.5" marker-end="url(#arrG)" fill="none"/>
+  <path d="M 900 270 L 930 270" stroke="#6b7a8a" stroke-width="1.5" marker-end="url(#arrG)" fill="none"/>
+  <path d="M 1010 218 L 1010 200" stroke="#6b7a8a" stroke-width="1.5" marker-end="url(#arrG)" fill="none"/>
+
+  <defs>
+    <marker id="arrG" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#6b7a8a"/></marker>
+  </defs>
+</svg>
+</div>
+
+<!-- ============================================================
+     SECTION 3 — 7-PHASE ROADMAP
+     ============================================================ -->
+<h2>3. The 7-phase build plan</h2>
+
+<div class="timeline">
+  <div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:8px;">
+    Total elapsed time: ~6–7 months to first UMM-powered budget decision
+  </div>
+  <div class="timeline-bar"></div>
+  <div class="ticks">
+    <span>Wk 1</span><span>Wk 9</span><span>Wk 17</span><span>Wk 25</span><span>Wk 28+</span>
+  </div>
+  <div class="timeline-legend">
+    <div class="legend-item"><span class="legend-dot" style="background:var(--accent);"></span>Phase 0–1: Alignment + Data</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--green);"></span>Phase 2–3: MMM + MTA (parallel)</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--amber);"></span>Phase 4: Unified model</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--purple);"></span>Phase 5–6: Experiments + Deploy</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--teal);"></span>Phase 7: Continuous loop</div>
+  </div>
+</div>
+
+<div class="phases">
+  <div class="phase">
+    <div class="phase-num">0</div>
+    <h4>Alignment &amp; Governance</h4>
+    <div class="duration">3 weeks</div>
+    <p>Pick one KPI per brand. Reconcile channel taxonomy across MMM and MTA. Map stakeholders (brand, sales ops, medical affairs, IT, compliance). Compliance review. Sign the measurement charter.</p>
+  </div>
+  <div class="phase">
+    <div class="phase-num">1</div>
+    <h4>Data Foundation &amp; HCP Identity</h4>
+    <div class="duration">6 weeks</div>
+    <p>HCP master data integration (NPI / license ID fuzzy matching). Spend × geo × month aggregation. Rx integration with 4–8 wk lag handling. Per-HCP touchpoint timeline. Audit-traceable warehouse.</p>
+  </div>
+  <div class="phase">
+    <div class="phase-num">2</div>
+    <h4>BHM MMM Rebuild</h4>
+    <div class="duration">6 weeks</div>
+    <p>3-tier hierarchical model: global → geo → time. Adstock + Hill saturation. Cross-channel interactions. Validation via posterior predictive, WAIC/LOO, sensitivity. Outputs: β per channel per geo + curves.</p>
+  </div>
+  <div class="phase">
+    <div class="phase-num">3</div>
+    <h4>HCP-level MTA</h4>
+    <div class="duration">8 weeks</div>
+    <p>Path dataset construction. Shapley for strategic reviews, survival model for operational attribution. Specialty and decile segmentation. Position-aware. Output: per-HCP attribution weights.</p>
+  </div>
+  <div class="phase">
+    <div class="phase-num">4</div>
+    <h4>Unified Bayesian Model</h4>
+    <div class="duration">8 weeks</div>
+    <p>Single PyMC model where MMM provides structural skeleton and MTA provides likelihood evidence. Hierarchical pooling across geos. Cross-channel interactions. Hold-out validation. Benchmark vs standalone MMM and MTA.</p>
+  </div>
+  <div class="phase">
+    <div class="phase-num">5</div>
+    <h4>Experimentation Layer</h4>
+    <div class="duration">Continuous</div>
+    <p>Geo experiments via GeoLift or CausalPy. Power analysis first. Synthetic control design. 8–12 week test windows. Results update UMM priors quarterly. Target 1–2 tests per brand per year.</p>
+  </div>
+  <div class="phase">
+    <div class="phase-num">6</div>
+    <h4>Decision Dashboard</h4>
+    <div class="duration">4 weeks</div>
+    <p>Per brand × geo: channel contributions (with uncertainty), interactive response curves, scenario planning, current vs optimal allocation. Streamlit for prototype, Tableau for scale.</p>
+  </div>
+  <div class="phase">
+    <div class="phase-num">7</div>
+    <h4>Continuous Learning Loop</h4>
+    <div class="duration">Quarterly</div>
+    <p>Define priors → Fit → Validate → Reallocate → Run experiments → Evaluate → Update priors → repeat. The Bayesian UMM gets smarter every quarter.</p>
+  </div>
+</div>
+
+<!-- ============================================================
+     SECTION 4 — KEY TECHNICAL DECISIONS
+     ============================================================ -->
+<h2>4. Key technical decisions</h2>
+
+<div class="two-col">
+  <div class="col-card">
+    <h4>MMM tool</h4>
+    <p><strong>Recommended: Google Meridian</strong> — purpose-built for geo-level hierarchical Bayesian MMM, supersedes LightweightMMM, open-source, well-documented.</p>
+    <p><strong>Alternative: PyMC-Marketing</strong> — more flexible if you need custom model structures or already have PyMC expertise in-house.</p>
+  </div>
+  <div class="col-card">
+    <h4>MTA algorithm</h4>
+    <p><strong>Shapley value</strong> for quarterly strategic attribution (theoretically fair, expensive but worth it on representative sample).</p>
+    <p><strong>Survival / Hazard model</strong> for ongoing tactical attribution — fits pharma's "time to Rx" outcome beautifully.</p>
+  </div>
+  <div class="col-card">
+    <h4>Unified model implementation</h4>
+    <p><strong>PyMC custom model</strong> using Meridian or PyMC-Marketing components as inspiration. Non-centered parameterization for stable sampling. NUTS sampler with <code>target_accept=0.95</code>.</p>
+  </div>
+  <div class="col-card">
+    <h4>Geo experiments</h4>
+    <p><strong>GeoLift (R)</strong> — Meta's open-source end-to-end geo-test platform with synthetic control + power calculators.</p>
+    <p><strong>CausalPy</strong> — Python alternative with Bayesian synthetic control, integrates well if your stack is Python-first.</p>
+  </div>
+</div>
+
+<!-- ============================================================
+     SECTION 5 — KPI & CHANNEL TAXONOMY
+     ============================================================ -->
+<h2>5. KPI &amp; channel taxonomy</h2>
+
+<p>Lock down ONE KPI per brand before any modeling. Typical pharma mapping:</p>
+
+<table>
+  <thead>
+    <tr><th>Brand lifecycle stage</th><th>Recommended KPI</th><th>Why</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Launch / pre-launch</td><td>NBRx (New-to-Brand Rx)</td><td>Sensitive to first adoption; clean signal of brand traction</td></tr>
+    <tr><td>Growth phase</td><td>TRx (Total Rx) + NBRx</td><td>Both switching and new starts matter; NBRx for cohort quality</td></tr>
+    <tr><td>Mature / LCM</td><td>TRx share (vs. competitors)</td><td>Defensive share-of-voice matters more than absolute volume</td></tr>
+    <tr><td>Specialty / rare disease</td><td>TRx + patient starts</td><td>Small N; combine with patient services data</td></tr>
+  </tbody>
+</table>
+
+<p>Channel taxonomy reconciliation — same channel must map cleanly across MMM and MTA:</p>
+
+<table>
+  <thead>
+    <tr><th>MMM channel (aggregated)</th><th>MTA touchpoint (HCP-level)</th><th>Identity key</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Sales Force</td><td>Rep detail call (Veeva call record)</td><td>Veeva call_id ↔ HCP NPI</td></tr>
+    <tr><td>Paid Digital</td><td>Programmatic / search impression</td><td>Pixel ID + HCP-validated list (Sermo, Doximity)</td></tr>
+    <tr><td>Conference</td><td>Booth scan / symposium attendance</td><td>Badge scan ↔ HCP NPI</td></tr>
+    <tr><td>CME</td><td>Module completion / post-test</td><td>Learner ID ↔ HCP NPI</td></tr>
+    <tr><td>KOL Program</td><td>Speaker bureau event attendee</td><td>Speaker bureau record ↔ HCP NPI</td></tr>
+    <tr><td>Email</td><td>Send / open / click</td><td>Email address ↔ HCP NPI</td></tr>
+    <tr><td>Samples (if tracked)</td><td>Sample drop event</td><td>Sample tracking system ↔ HCP NPI</td></tr>
+  </tbody>
+</table>
+
+<!-- ============================================================
+     SECTION 6 — PITFALLS
+     ============================================================ -->
+<h2>6. Common pitfalls — rank-ordered by frequency</h2>
+
+<div class="callout danger">
+  <strong>1. Skipping Phase 0 alignment</strong>
+  Without a signed measurement charter, every later phase becomes political. KPI ambiguity destroys trust in outputs.
+</div>
+
+<div class="callout danger">
+  <strong>2. Treating MMM and MTA as siloed outputs to "blend"</strong>
+  This is exactly what UMM is <em>not</em>. They must be unified at the technical level — a single Bayesian model, not a weighted average of two reports.
+</div>
+
+<div class="callout warn">
+  <strong>3. No HCP master data layer</strong>
+  Garbage identity resolution means garbage MTA. Every source system has its own match logic — none is canonical.
+</div>
+
+<div class="callout warn">
+  <strong>4. Ignoring pharma's long lag</strong>
+  Rx data has 4–8 wk delay; MMM adstock is 60+ days; MTA window must be 60–180 days. Pretending it doesn't exist biases everything.
+</div>
+
+<div class="callout warn">
+  <strong>5. Showing point estimates without uncertainty</strong>
+  Kills trust the first time you're wrong. Show the full posterior distribution or stakeholders will assume false precision.
+</div>
+
+<div class="callout warn">
+  <strong>6. One geo experiment a year is not enough</strong>
+  Priors don't update, model rots. Aim for ≥1 experiment per brand per year as a floor.
+</div>
+
+<div class="callout good">
+  <strong>7. Compliance as afterthought</strong>
+  Fix it in Phase 0 or you'll rebuild the warehouse in Phase 6. Every modeling decision must be reproducible and audit-traceable.
+</div>
+
+<!-- ============================================================
+     SECTION 7 — NEXT STEPS
+     ============================================================ -->
+<h2>7. What to do this week</h2>
+
+<ol>
+  <li><strong>Schedule the alignment meeting</strong> with brand, sales ops, medical affairs, IT, compliance. Goal: lock the KPI for one priority brand.</li>
+  <li><strong>Data inventory sprint</strong> — 2 days. List every data source with owner, freshness, geo coverage, HCP coverage.</li>
+  <li><strong>Read the canonical references</strong> — Sun et al. 2017 (Geo-level BHM), Jin et al. 2017 (Bayesian MMM with carryover), the Google Meridian docs.</li>
+  <li><strong>Get the starter code running</strong> with synthetic data first to verify your environment; then swap in real data loaders.</li>
+  <li><strong>Identify your first geo experiment</strong> — pick a clean intervention (e.g., rep force expansion in 2 test geos) and start the power analysis.</li>
+</ol>
+
+<div class="callout">
+  <strong>Starter code:</strong> <code>umm_pharma_unified_model.py</code> — runnable PyMC skeleton that synthesizes realistic pharma data, fits the unified model, and visualizes outputs. Replace the synthetic data section with your real loaders.
+</div>
+
+<footer>
+  Built for pharma UMM · Bayesian Hierarchical MMM × HCP-level MTA on Rx claims
+</footer>
+
+</div>
+</body>
+</html>
